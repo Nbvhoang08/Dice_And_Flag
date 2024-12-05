@@ -24,7 +24,7 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-       /* if (Input.GetMouseButtonDown(0) && _currentDice == null)
+        if (Input.GetMouseButtonDown(0) && _currentDice == null)
         {
             SpawnDice();
             _isDragging = true;
@@ -35,7 +35,6 @@ public class Player : MonoBehaviour
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector2 direction = mousePosition - spawnPosition.position;
 
-            // Giới hạn hướng ném trong tầm ném
             if (direction.magnitude > maxDistance)
             {
                 direction = direction.normalized * maxDistance;
@@ -43,81 +42,153 @@ public class Player : MonoBehaviour
 
             DrawTrajectory(spawnPosition.position, direction);
 
-            if (Input.GetMouseButtonUp(0)) // Chuột trái để ném
+            if (Input.GetMouseButtonUp(0))
             {
-                ThrowDice(direction);
+                // Lấy điểm cuối cùng từ LineRenderer
+                Vector3 targetPoint = lineRenderer.GetPosition(lineRenderer.positionCount - 1);
+                ThrowDice(targetPoint);
                 _isDragging = false;
             }
-        }*/
-       
-
-
-
-
+        }
     }
 
+    void ThrowDice(Vector3 targetPoint)
+    {
+        Rigidbody2D rb = _currentDice.GetComponent<Rigidbody2D>();
+
+        if (rb != null)
+        {
+            StartCoroutine(ThrowDiceCoroutine(rb, targetPoint));
+        }
+
+        _currentDice = null;
+        lineRenderer.positionCount = 0;
+    }
+
+    IEnumerator ThrowDiceCoroutine(Rigidbody2D rb, Vector3 targetPoint)
+    {
+        Vector3 startPos = rb.transform.position;
+        float journeyLength = Vector3.Distance(startPos, targetPoint);
+        float throwDuration = journeyLength / throwForce; // Thời gian di chuyển dựa vào khoảng cách
+
+        float elapsedTime = 0;
+
+        // Tính toán đường cong
+        Vector3 controlPoint = (startPos + targetPoint) / 2;
+        controlPoint.y += journeyLength * 0.5f; // Độ cao của đường cong
+
+        while (elapsedTime < throwDuration)
+        {
+            float t = elapsedTime / throwDuration;
+
+            // Tính toán vị trí trên đường cong Bezier bậc 2
+            Vector3 newPosition = Vector3.Lerp(
+                Vector3.Lerp(startPos, controlPoint, t),
+                Vector3.Lerp(controlPoint, targetPoint, t),
+                t
+            );
+
+            rb.MovePosition(newPosition);
+
+            // Thêm hiệu ứng xoay
+            rb.angularVelocity = 360f;
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+       
+
+        // Tạo hiệu ứng nảy
+        StartCoroutine(BounceEffect(rb));
+    }
+
+    IEnumerator BounceEffect(Rigidbody2D rb)
+    {
+        float bounceHeight = 0.5f; // Độ cao nảy ban đầu
+        float bounceDuration = 0.2f; // Thời gian mỗi lần nảy
+        int bounceCount = 3; // Số lần nảy
+
+        Vector3 originalPos = rb.transform.position;
+
+        for (int i = 0; i < bounceCount; i++)
+        {
+            // Nảy lên
+            float elapsedTime = 0;
+            Vector3 startPos = rb.transform.position;
+            Vector3 bouncePos = startPos + Vector3.up * (bounceHeight);
+
+            while (elapsedTime < bounceDuration / 2)
+            {
+                float t = elapsedTime / (bounceDuration / 2);
+                rb.MovePosition(Vector3.Lerp(startPos, bouncePos, t));
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+
+            // Rơi xuống
+            elapsedTime = 0;
+            startPos = rb.transform.position;
+
+            while (elapsedTime < bounceDuration / 2)
+            {
+                float t = elapsedTime / (bounceDuration / 2);
+                rb.MovePosition(Vector3.Lerp(startPos, originalPos, t));
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+
+            // Giảm độ cao cho lần nảy tiếp theo
+            bounceHeight *= 0.5f;
+            bounceDuration *= 0.8f;
+            // Khi đến đích
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0;
+            yield return new WaitForSeconds(0.1f);
+          
+        }
+    }
+
+    void DrawTrajectory(Vector2 start, Vector2 direction)
+    {
+        lineRenderer.positionCount = resolution;
+        Vector3[] points = new Vector3[resolution];
+
+        // Điều chỉnh hướng để phù hợp với lực ném mới
+        Vector2 throwDirection = direction.normalized;
+        throwDirection += Vector2.up * 0.5f;
+        throwDirection.Normalize();
+
+        float velocity = direction.magnitude * throwForce;
+        float g = Physics2D.gravity.y * 0.5f; // Phải nhân với gravityScale
+
+        float maxTime = 2f; // Thời gian tối đa để vẽ quỹ đạo
+
+        for (int i = 0; i < resolution; i++)
+        {
+            float t = maxTime * (i / (float)(resolution - 1));
+
+            // Tính toán vị trí dựa trên phương trình chuyển động
+            float x = start.x + throwDirection.x * velocity * t;
+            float y = start.y + throwDirection.y * velocity * t + 0.5f * g * t * t;
+
+            points[i] = new Vector3(x, y, 0);
+        }
+
+        lineRenderer.SetPositions(points);
+    }
     void SpawnDice()
     {
         _currentDice = Instantiate(dicePrefab, spawnPosition.position, Quaternion.identity);
         _currentDice.GetComponent<Rigidbody2D>().gravityScale = 0;
         lineRenderer.positionCount = 0; // Xóa quỹ đạo cũ
     }
-
-    void DrawTrajectory(Vector2 start, Vector2 direction)
-    {
-        lineRenderer.positionCount = resolution; // Số lượng điểm trên quỹ đạo
-        Vector3[] points = new Vector3[resolution];
-
-        float angle = Mathf.Atan2(direction.y, direction.x); // Góc ném
-        float velocity = direction.magnitude * throwForce; // Vận tốc ban đầu
-        float g = Mathf.Abs(Physics2D.gravity.y); // Gia tốc trọng trường
-
-        // Tính thời gian tối đa dựa trên vận tốc và góc
-        float totalTime = (2 * velocity * Mathf.Sin(angle)) / g;
-
-        for (int i = 0; i < resolution; i++)
-        {
-            // Tính thời gian dựa trên vị trí trong resolution
-            float t = totalTime * (i / (float)(resolution - 1));
-
-            // Tính tọa độ x và y theo công thức vật lý
-            float x = velocity * t * Mathf.Cos(angle);
-            float y = velocity * t * Mathf.Sin(angle) - 0.5f * g * t * t;
-
-            // Cập nhật điểm trên quỹ đạo
-            points[i] = new Vector3(start.x + x, start.y + y, 0);
-        }
-
-        // Gán các điểm vào LineRenderer
-        lineRenderer.SetPositions(points);
-
-        // Điều chỉnh khoảng cách và kích thước của sprite trong LineRenderer
-      
-       
-    }
-    
-   
     public int RandomStep()
     {
-        return Random.Range(1,6);    
+        return Random.Range(1, 6);
     }
     public void Move()
     {
-           
-    }
 
-
-    void ThrowDice(Vector2 direction)
-    {
-        Rigidbody2D rb = _currentDice.GetComponent<Rigidbody2D>();
-        
-        if (rb != null)
-        {
-            rb.velocity = direction.normalized * direction.magnitude * throwForce;
-            rb.gravityScale = 1;
-        }
-
-        _currentDice = null; // Reset để chuẩn bị cho lần tiếp theo
-        lineRenderer.positionCount = 0; // Xóa quỹ đạo sau khi ném
     }
 }

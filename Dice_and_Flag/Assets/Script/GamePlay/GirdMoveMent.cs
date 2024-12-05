@@ -89,17 +89,17 @@ public class GirdMoveMent : MonoBehaviour
             transform.position = endPos;
             currentCell = nextCell;
             remainingSteps--;
-            Debug.Log(remainingSteps);
+            //Debug.Log(remainingSteps);
             // Kiểm tra số hướng đi tại ô hiện tại
             List<Vector2> currentValidDirections = GetValidDirections(currentCell);
-            /*
-            if (currentValidDirections.Count > 1)
+
+            if (currentValidDirections.Count >= 3)
             {
                 // Nếu có nhiều hơn 1 hướng đi, dừng lại
-                Debug.Log("?");
+                Debug.Log(currentValidDirections.Count);
                 break;
 
-            }*/
+            }
         }
         _currentCell = currentCell;
         isMoving = false;
@@ -107,14 +107,14 @@ public class GirdMoveMent : MonoBehaviour
 
     private void Update()
     {
-        if (!isMoving)
+        /*if (!isMoving)
         {
             
             if (Input.GetKeyDown(KeyCode.W)) Move(Vector2.right, 6);
             if (Input.GetKeyDown(KeyCode.S)) Move(Vector2.down, 6);
             if (Input.GetKeyDown(KeyCode.A)) Move(Vector2.left, 6);
             if (Input.GetKeyDown(KeyCode.D)) Move(Vector2.right, 6);
-        }
+        }*/
 
        
         
