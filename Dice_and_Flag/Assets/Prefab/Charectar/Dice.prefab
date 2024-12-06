@@ -12,9 +12,11 @@ GameObject:
   - component: {fileID: 3105346435133422196}
   - component: {fileID: 6681102277711201662}
   - component: {fileID: -664321613169634475}
-  m_Layer: 0
+  - component: {fileID: 9066066065115399948}
+  - component: {fileID: 628460645257095289}
+  m_Layer: 7
   m_Name: Dice
-  m_TagString: Untagged
+  m_TagString: Dice
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -29,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.05, y: 0.24, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 956962661638618942}
@@ -81,7 +83,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.8888889, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -95,7 +97,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4083953139246377255}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: e474cd72496a6f442bcc65771909a53f, type: 2}
   m_CullingMode: 0
@@ -120,9 +122,9 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
+  m_Mass: 2
+  m_LinearDrag: 5
+  m_AngularDrag: 1
   m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -135,6 +137,87 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!61 &9066066065115399948
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4083953139246377255}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.8888889, y: 1}
+    newSize: {x: 0.8888889, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.8888889, y: 1}
+  m_EdgeRadius: 0
+--- !u!114 &628460645257095289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4083953139246377255}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbe61b26efd2c2a48ab86c31dd4c14fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scoreSprite: {fileID: 3548490054503945482}
+  ScoreNumber:
+  - {fileID: 21300000, guid: 7e9f9269f11368a458198a152656c9eb, type: 3}
+  - {fileID: 21300000, guid: 07eb7b87b8433024f854f68b0007d9dd, type: 3}
+  - {fileID: 21300000, guid: bd9540eef9cc5374fbf2ae4d7f70a7fd, type: 3}
+  - {fileID: 21300000, guid: 50085c4aa4a2d914195658546f81a7a5, type: 3}
+  - {fileID: 21300000, guid: 7db8d304eba03754eb894bf97f58008d, type: 3}
+  - {fileID: 21300000, guid: 070abb3b66031114d9b21f2d33b15711, type: 3}
+  diceSprite: {fileID: 3105346435133422196}
+  diceDurability:
+  - {fileID: 21300000, guid: 3dfe86be0377f934b99a9e88967eee31, type: 3}
+  - {fileID: 21300000, guid: 1424e859e991dff49a534cf28cda1c6c, type: 3}
+  - {fileID: 21300000, guid: 16aa772d444ff3845bdf91b5373fefac, type: 3}
+  - {fileID: 21300000, guid: 30cf8f16815d03c47ba8a1925b7343cd, type: 3}
+  durability: 3
+  step: 0
+  fragmentPrefabs:
+  - {fileID: 1750389087626327506, guid: 798eae562f4e4e04f9217aee9e6f2257, type: 3}
+  - {fileID: 1955338801964033608, guid: 144094d69a9123d458a6d27fbdc5f944, type: 3}
+  - {fileID: 6948445880154130619, guid: 5107024ee48b9c2489828a7d0f30ddfd, type: 3}
+  fragmentCount: 5
+  explosionForce: 20
+  explosionRadius: 3
+  Invicable: 0
 --- !u!1 &6382696148044801431
 GameObject:
   m_ObjectHideFlags: 0
@@ -145,7 +228,7 @@ GameObject:
   m_Component:
   - component: {fileID: 956962661638618942}
   - component: {fileID: 3548490054503945482}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Score
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -161,7 +244,7 @@ Transform:
   m_GameObject: {fileID: 6382696148044801431}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.05, z: 0}
+  m_LocalPosition: {x: -0.015, y: 0.045, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
