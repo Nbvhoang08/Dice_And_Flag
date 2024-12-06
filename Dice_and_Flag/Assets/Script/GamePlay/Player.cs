@@ -1,7 +1,5 @@
-﻿
-using System;
+﻿using System;
 using System.Collections;
-
 using UnityEngine;
 using TMPro;
 public class Player : Character
@@ -56,6 +54,7 @@ public class Player : Character
                 SpawnDice();
                
                 _isDragging = true;
+                NameText.text = "   ";
                 ChangeAnim("hold");
                 // Tạo instance của targetSprite và điều chỉnh tọa độ Z
                 if (targetSpriteInstance == null)
@@ -115,15 +114,11 @@ public class Player : Character
         }
         else
         {
-            if (gridMovement.isMoving)
-            {
-                NameText.text = stepDice.ToString();
-            }
-            else
+            if (!gridMovement.isMoving && _currentDice == null)
             {
                 NameText.text = Name;
             }
-            
+           
             for (int i = 0; i <= btn.Length-1; i++)
             {
                 btn[i].gameObject.SetActive(false);

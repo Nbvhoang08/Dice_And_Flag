@@ -1,17 +1,16 @@
-﻿using JetBrains.Annotations;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.U2D.Aseprite;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class GirdMoveMent : MonoBehaviour
+public class EnemyGridMoveMent : MonoBehaviour
 {
+    // Start is called before the first frame update
     public Tilemap tilemap;
     public float moveSpeed = 5f;
     public Vector3Int _currentCell;
     public bool isMoving = false;
-    public Player player;
+    public Enemy enemy;
     public bool Stunning;
     public void Awake()
     {
@@ -21,7 +20,7 @@ public class GirdMoveMent : MonoBehaviour
         }
 
     }
-    
+
     private void Start()
     {
         _currentCell = tilemap.WorldToCell(transform.position);
@@ -32,15 +31,15 @@ public class GirdMoveMent : MonoBehaviour
         // Đặt vị trí của đối tượng vào chính giữa ô
         transform.position = cellCenterPosition;
 
-        player = GetComponent<Player>();
-     
+        enemy = GetComponent<Enemy>();
+
         Stunning = false;
     }
-    
+
     public void Move(Vector2 direction, int steps)
     {
         if (isMoving) return;
-        if(Stunning) return;
+        if (Stunning) return;
         StartCoroutine(MoveThroughCells(_currentCell, direction, steps));
     }
 
@@ -69,16 +68,16 @@ public class GirdMoveMent : MonoBehaviour
         {
             if (collision.gameObject.GetComponent<Dice>().Invicable && !Stunning)
             {
-                player.ChangeAnim("stun");
+                enemy.ChangeAnim("stun");
                 Stunning = true;
                 StartCoroutine(ResetStun());
-                if(collision.gameObject.transform.position.x<= transform.position.x)
+                if (collision.gameObject.transform.position.x <= transform.position.x)
                 {
-                    player.sprite.flipX = false;
+                    enemy.sprite.flipX = false;
                 }
                 else
                 {
-                    player.sprite.flipX = true;    
+                    enemy.sprite.flipX = true;
                 }
             }
         }
@@ -111,14 +110,14 @@ public class GirdMoveMent : MonoBehaviour
         {
             time += Time.deltaTime * moveSpeed;
             transform.position = Vector3.Lerp(startPos, targetPosition, time);
-            player.ChangeAnim("walk");
+            enemy.ChangeAnim("walk");
             yield return null;
         }
 
         // Đảm bảo đối tượng ở đúng vị trí mục tiêu sau khi di chuyển
         transform.position = targetPosition;
         isMoving = false; // Đặt lại cờ khi di chuyển hoàn tất
-        player.ChangeAnim("idle");
+        enemy.ChangeAnim("idle");
     }
 
 
@@ -131,17 +130,17 @@ public class GirdMoveMent : MonoBehaviour
         int remainingSteps = steps;
         if (initialDirection == Vector2.right)
         {
-            player.sprite.flipX = true;
+            enemy.sprite.flipX = true;
         }
         else if (initialDirection == Vector2.left)
         {
-            player.sprite.flipX = false;
+            enemy.sprite.flipX = false;
         }
         while (remainingSteps > 0)
         {
             // Tìm ô tiếp theo
             Vector3Int nextCell = currentCell + new Vector3Int((int)currentDirection.x, (int)currentDirection.y, 0);
-            player.ChangeAnim("walk");
+            enemy.ChangeAnim("walk");
             // Nếu ô tiếp theo không hợp lệ
             if (!IsValidCell(nextCell))
             {
@@ -166,8 +165,19 @@ public class GirdMoveMent : MonoBehaviour
                 }
                 else
                 {
-                    // Nếu có nhiều hơn 1 hướng đi tại vị trí hiện tại, dừng lại
-                    break;
+                    // Nếu có nhiều hơn 2 hướng đi tại vị trí hiện tại
+                    validDirections.Remove(oppositeDirection); // Loại bỏ hướng ngược lại
+                    if (validDirections.Count > 0)
+                    {
+                        // Chọn ngẫu nhiên một hướng hợp lệ từ danh sách còn lại
+                        currentDirection = validDirections[UnityEngine.Random.Range(0, validDirections.Count)];
+                        nextCell = currentCell + new Vector3Int((int)currentDirection.x, (int)currentDirection.y, 0);
+                    }
+                    else
+                    {
+                        // Nếu không còn hướng nào khác ngoài hướng ngược lại, dừng lại
+                        break;
+                    }
                 }
             }
 
@@ -186,30 +196,26 @@ public class GirdMoveMent : MonoBehaviour
             transform.position = endPos;
             currentCell = nextCell;
             remainingSteps--;
-            player.NameText.text = remainingSteps.ToString();
-            //Debug.Log(remainingSteps);
-            // Kiểm tra số hướng đi tại ô hiện tại
+            enemy.NameText.text = remainingSteps.ToString();
             List<Vector2> currentValidDirections = GetValidDirections(currentCell);
 
             if (currentValidDirections.Count >= 3 && remainingSteps > 0)
             {
 
-
-                player.stepDice = remainingSteps;
-                player.ChangeAnim("idle");
-                player.CanMove = true;
+                Debug.Log(currentValidDirections.Count);
+                enemy.stepDice = remainingSteps;
+                enemy.ChangeAnim("idle");
                 break;
 
             }
         }
         _currentCell = currentCell;
         isMoving = false;
-        player.ChangeAnim("idle");
+        enemy.ChangeAnim("idle");
         if (remainingSteps <= 0)
         {
-            player.gameManager.Next();
+            enemy.gameManager.Next();
         }
 
     }
-
 }
