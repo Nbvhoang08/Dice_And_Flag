@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using System;
-using static UnityEngine.GraphicsBuffer;
-using static UnityEditor.Experimental.GraphView.GraphView;
+
 
 
 public class Enemy : Character
@@ -36,8 +35,9 @@ public class Enemy : Character
         isYourTurn = false;
     }
 
-    private void Start()
+    public override void Start()
     {
+        base.Start();
         gameManager = FindAnyObjectByType<GameManager>();
         gridMovement = GetComponent<EnemyGridMoveMent>();
         anim = GetComponent<Animator>();

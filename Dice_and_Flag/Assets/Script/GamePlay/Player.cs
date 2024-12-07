@@ -2,6 +2,8 @@
 using System.Collections;
 using UnityEngine;
 using TMPro;
+using Unity.VisualScripting;
+
 public class Player : Character
 {
     public GameObject dicePrefab; // Prefab xúc xắc
@@ -32,8 +34,9 @@ public class Player : Character
     {
         isYourTurn = false;
     }
-    private void Start()
+    public override void Start()
     {
+        base.Start();
         gameManager = FindAnyObjectByType<GameManager>();
         gridMovement = GetComponent<GirdMoveMent>();
         sprite = GetComponent<SpriteRenderer>();
@@ -43,97 +46,112 @@ public class Player : Character
 
     void Update()
     {
-
-        if (isYourTurn)
+        if (!Death)
         {
-
-            if (Input.GetMouseButtonDown(0) && _currentDice == null && !gridMovement.isMoving && !CanMove)
+            if (isYourTurn)
             {
-                SpawnDice();
 
-                _isDragging = true;
-                NameText.text = "   ";
-                ChangeAnim("hold");
-                // Tạo instance của targetSprite và điều chỉnh tọa độ Z
-                if (targetSpriteInstance == null)
+                if (Input.GetMouseButtonDown(0) && _currentDice == null && !gridMovement.isMoving && !CanMove)
                 {
-                    targetSpriteInstance = Instantiate(targetSpritePrefab);
-                    Vector3 position = targetSpriteInstance.transform.position;
-                    position.z = -3;
-                    targetSpriteInstance.transform.position = position;
-                }
-            }
+                    SpawnDice();
 
-            if (_isDragging && _currentDice != null)
-            {
-                Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                Vector3 direction = mousePosition - spawnPosition.position;
-
-                if (direction.magnitude > maxDistance)
-                {
-                    direction = direction.normalized * maxDistance;
-                }
-
-                // Cập nhật LineRenderer để theo dõi vị trí chuột
-                DrawTrajectory(spawnPosition.position, spawnPosition.position + direction);
-
-                if (Input.GetMouseButtonUp(0))
-                {
-                    // Lấy điểm cuối cùng từ LineRenderer
-                    Vector3 targetPoint = lineRenderer.GetPosition(lineRenderer.positionCount - 1);
-                    ThrowDice(targetPoint);
-                    ChangeAnim("throw");
-                    _isDragging = false;
-
-                    // Hủy instance của targetSprite sau khi ném
-                    if (targetSpriteInstance != null)
+                    _isDragging = true;
+                    NameText.text = "   ";
+                    ChangeAnim("hold");
+                    // Tạo instance của targetSprite và điều chỉnh tọa độ Z
+                    if (targetSpriteInstance == null)
                     {
-                        Destroy(targetSpriteInstance);
-                        targetSpriteInstance = null;
+                        targetSpriteInstance = Instantiate(targetSpritePrefab);
+                        Vector3 position = targetSpriteInstance.transform.position;
+                        position.z = -3;
+                        targetSpriteInstance.transform.position = position;
                     }
                 }
-            }
-        }
 
-
-        if (CanMove)
-        {
-            NameText.text = "   ";
-            Vector2 position = new Vector2(transform.position.x, transform.position.y);
-            Vector2 currentCell = new Vector2(gridMovement._currentCell.x, gridMovement._currentCell.y);
-            if (Vector2.Distance(position,currentCell)<=1)
-            {
-                foreach (Vector2 dir in gridMovement.GetValidDirections(gridMovement._currentCell))
+                if (_isDragging && _currentDice != null)
                 {
-                    for (int i = 0; i <= btn.Length - 1; i++)
+                    Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                    Vector3 direction = mousePosition - spawnPosition.position;
+
+                    if (direction.magnitude > maxDistance)
                     {
-                        if (dir == btn[i].dir)
+                        direction = direction.normalized * maxDistance;
+                    }
+
+                    // Cập nhật LineRenderer để theo dõi vị trí chuột
+                    DrawTrajectory(spawnPosition.position, spawnPosition.position + direction);
+
+                    if (Input.GetMouseButtonUp(0))
+                    {
+                        // Lấy điểm cuối cùng từ LineRenderer
+                        Vector3 targetPoint = lineRenderer.GetPosition(lineRenderer.positionCount - 1);
+                        ThrowDice(targetPoint);
+                        ChangeAnim("throw");
+                        _isDragging = false;
+
+                        // Hủy instance của targetSprite sau khi ném
+                        if (targetSpriteInstance != null)
                         {
-                            btn[i].gameObject.SetActive(true);
+                            Destroy(targetSpriteInstance);
+                            targetSpriteInstance = null;
                         }
                     }
                 }
             }
+
+
+            if (CanMove)
+            {
+                NameText.text = "   ";
+                Vector2 position = new Vector2(transform.position.x, transform.position.y);
+                Vector2 currentCell = new Vector2(gridMovement._currentCell.x, gridMovement._currentCell.y);
+                if (Vector2.Distance(position, currentCell) <= 1)
+                {
+                    foreach (Vector2 dir in gridMovement.GetValidDirections(gridMovement._currentCell))
+                    {
+                        for (int i = 0; i <= btn.Length - 1; i++)
+                        {
+                            if (dir == btn[i].dir)
+                            {
+                                btn[i].gameObject.SetActive(true);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    gridMovement.MoveReturn();
+                }
+
+
+            }
             else
             {
-                gridMovement.MoveReturn();
+                if (!gridMovement.isMoving && _currentDice == null)
+                {
+                    NameText.text = Name;
+                }
+
+                for (int i = 0; i <= btn.Length - 1; i++)
+                {
+                    btn[i].gameObject.SetActive(false);
+
+                }
             }
-          
-            
         }
         else
         {
-            if (!gridMovement.isMoving && _currentDice == null)
+            if (isYourTurn)
             {
-                NameText.text = Name;
+                currentHp = maxHp;
+                gameManager.Next();
             }
-
-            for (int i = 0; i <= btn.Length - 1; i++)
+            else
             {
-                btn[i].gameObject.SetActive(false);
-          
+                Dead();
             }
         }
+        
         
     }
         void DrawTrajectory(Vector2 start, Vector2 end)
@@ -288,7 +306,17 @@ public class Player : Character
 
         }
 
-
+        public void Dead()
+        {
+            
+            transform.position = startPos.transform.position;
+            gridMovement._currentCell= Vector3Int.RoundToInt(startPos.transform.position);
+            if (Vector2.Distance(transform.position, startPos.transform.position) <= 0.1f)
+            {
+                ChangeAnim("stun");
+            }
+           
+        }
         void SpawnDice()
         {
             _currentDice = Instantiate(dicePrefab, spawnPosition.position, Quaternion.identity);

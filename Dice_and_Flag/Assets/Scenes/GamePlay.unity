@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -3937,8 +3936,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a5b8b5376b138f4e8876783dee25d29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ItemBox: {fileID: 0}
-  tilemap: {fileID: 0}
+  ItemBox: {fileID: 7023591374054971935, guid: 48685aa2fc691284e8edc91c5f37ef65, type: 3}
+  tilemap: {fileID: 1470427853}
   spawnInterval: 5
 --- !u!1 &249418475
 GameObject:
@@ -4129,6 +4128,10 @@ PrefabInstance:
     - target: {fileID: 658008999560885029, guid: 8562f53efc2f1334f98cf86fd5833b7e, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 658008999560885029, guid: 8562f53efc2f1334f98cf86fd5833b7e, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1613718423672341161, guid: 8562f53efc2f1334f98cf86fd5833b7e, type: 3}
       propertyPath: m_FlipX
@@ -5052,6 +5055,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2349067074570162066, guid: 36b4d3c7b8c016a47988a36da264141d, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 2575863563755381722, guid: 36b4d3c7b8c016a47988a36da264141d, type: 3}
       propertyPath: player1
       value: 
@@ -5516,6 +5523,7 @@ MonoBehaviour:
   m_DeselectOnBackgroundClick: 1
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
+  m_ScrollDeltaPerTick: 6
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

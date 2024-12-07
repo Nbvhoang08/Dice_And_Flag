@@ -1,7 +1,5 @@
-﻿using JetBrains.Annotations;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.U2D.Aseprite;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -38,18 +36,14 @@ public class GirdMoveMent : MonoBehaviour
     }
     public void Update()
     {
-        if (!Stunning && !isMoving)
-        {
-           
+        if (!Stunning && !isMoving && !player.Death)
+        { 
             Vector2 position = new Vector2(transform.position.x, transform.position.y);
             Vector2 currentCell = new Vector2(_currentCell.x, _currentCell.y);
-            if (Vector2.Distance(position, currentCell) >= 0.3f)
+            if (Vector2.Distance(position, currentCell) >= 0.1f)
             {
-
                 MoveReturn();
-                Debug.Log("!");
             }
-
         }
     }
 
@@ -83,11 +77,12 @@ public class GirdMoveMent : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Dice"))
         {
-            if (collision.gameObject.GetComponent<Dice>().Invicable && !Stunning && collision.gameObject != player._currentDice)
+            if (collision.gameObject.GetComponent<Dice>().Invicable && !Stunning && collision.gameObject != player._currentDice && !player.Death)
             {
                 player.ChangeAnim("stun");
                 Stunning = true;
                 StartCoroutine(ResetStun());
+                player.currentHp --;
                 if(collision.gameObject.transform.position.x<= transform.position.x)
                 {
                     player.sprite.flipX = false;

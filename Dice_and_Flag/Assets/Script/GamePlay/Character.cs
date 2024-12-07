@@ -9,6 +9,17 @@ public class Character : MonoBehaviour
     public int maxHp;
     public int currentHp;
     public GameObject startPos;
-    public bool Death;
+    public bool Death => currentHp <=0;
+
+    public virtual void Start()
+    {
+        currentHp = maxHp;
+
+    }
+
    
+
+
+
+
 }
