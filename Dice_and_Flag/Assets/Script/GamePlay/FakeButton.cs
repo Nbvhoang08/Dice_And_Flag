@@ -8,6 +8,18 @@ public class FakeButton : MonoBehaviour
     public Player player;
     public GirdMoveMent move;
     public Vector2 dir;
+    public Vector2 StartPos;
+
+    
+    private void OnEnable()
+    {
+        transform.localPosition = StartPos;
+    }
+    private void Update()
+    {
+        
+    }
+
     private void OnMouseDown()
     {
         if (player.CanMove)

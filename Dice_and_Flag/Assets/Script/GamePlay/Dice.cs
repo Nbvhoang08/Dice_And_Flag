@@ -106,6 +106,15 @@ public class Dice : MonoBehaviour
             }
            
         }
+        if(collision.gameObject.CompareTag("Player")|| collision.gameObject.CompareTag("Enemy"))
+        {
+            // Calculate knockback direction
+            Vector2 knockbackDirection = (transform.position - collision.transform.position).normalized;
+            // Apply knockback force
+            float knockbackForce = 5f; // Adjust this value as needed
+      
+            GetComponent<Rigidbody2D>().AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse);
+        }
     }
 
     public bool IsRotating()

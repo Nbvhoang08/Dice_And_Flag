@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 87199342531997651}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
-  m_LocalPosition: {x: 1.7, y: 1, z: 0}
+  m_LocalPosition: {x: 1.7, y: 1, z: -4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -102,6 +102,7 @@ MonoBehaviour:
   player: {fileID: 2445211422692526808}
   move: {fileID: 5452905186899793462}
   dir: {x: 1, y: 0}
+  StartPos: {x: 1.7, y: 1}
 --- !u!58 &1586074054614889841
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -145,7 +146,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 87199342531997651}
-  m_BodyType: 0
+  m_BodyType: 2
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -163,7 +164,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 7
 --- !u!1 &658008999560885029
 GameObject:
   m_ObjectHideFlags: 0
@@ -293,7 +294,8 @@ MonoBehaviour:
   isYourTurn: 0
   maxHp: 0
   currentHp: 0
-  startPos: {x: 0, y: 0, z: 0}
+  startPos: {fileID: 0}
+  Death: 0
   dicePrefab: {fileID: 4083953139246377255, guid: 0e1985948aecf784ea87b50dae192823, type: 3}
   lineRenderer: {fileID: 4780720699279205714}
   throwForce: 5
@@ -562,7 +564,7 @@ Transform:
   m_GameObject: {fileID: 3891884601072054256}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 3.33, z: 0}
+  m_LocalPosition: {x: 0, y: 3.33, z: -4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -635,6 +637,7 @@ MonoBehaviour:
   player: {fileID: 2445211422692526808}
   move: {fileID: 5452905186899793462}
   dir: {x: 0, y: 1}
+  StartPos: {x: 0, y: 3.33}
 --- !u!58 &482165290458098120
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -678,7 +681,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3891884601072054256}
-  m_BodyType: 0
+  m_BodyType: 2
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -696,7 +699,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 7
 --- !u!1 &3931282641469749215
 GameObject:
   m_ObjectHideFlags: 0
@@ -726,7 +729,7 @@ Transform:
   m_GameObject: {fileID: 3931282641469749215}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.7, y: 1, z: 0}
+  m_LocalPosition: {x: -1.7, y: 1, z: -4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -799,6 +802,7 @@ MonoBehaviour:
   player: {fileID: 2445211422692526808}
   move: {fileID: 5452905186899793462}
   dir: {x: -1, y: 0}
+  StartPos: {x: -1.7, y: 1}
 --- !u!58 &7640558604442163825
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -842,7 +846,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3931282641469749215}
-  m_BodyType: 0
+  m_BodyType: 2
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -860,7 +864,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 7
 --- !u!1 &4759826363535351016
 GameObject:
   m_ObjectHideFlags: 0
@@ -925,7 +929,7 @@ Transform:
   m_GameObject: {fileID: 6429158919639357938}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: -0.7, z: 0}
+  m_LocalPosition: {x: 0, y: -0.7, z: -4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -998,6 +1002,7 @@ MonoBehaviour:
   player: {fileID: 2445211422692526808}
   move: {fileID: 5452905186899793462}
   dir: {x: 0, y: -1}
+  StartPos: {x: 0, y: -0.7}
 --- !u!58 &1389174699443827440
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1041,7 +1046,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6429158919639357938}
-  m_BodyType: 0
+  m_BodyType: 2
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -1059,7 +1064,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 7
 --- !u!1 &7099085167513142023
 GameObject:
   m_ObjectHideFlags: 0
@@ -1168,7 +1173,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 178
+  m_SortingOrder: 90
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &5166653081993882266
 MonoBehaviour:

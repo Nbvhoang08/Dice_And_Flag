@@ -15,7 +15,7 @@ public class Enemy : Character
     public float maxDistance = 5f; // Tầm ném tối đa
     public Transform spawnPosition; // Vị trí cố định để tạo xúc xắc
 
-    [SerializeField] private GameObject _currentDice; // Viên xúc xắc hiện tại
+    public GameObject _currentDice; // Viên xúc xắc hiện tại
     [SerializeField] private EnemyGridMoveMent gridMovement;
     public int stepDice = 0;
     public bool CanMove;
@@ -97,9 +97,9 @@ public class Enemy : Character
         // Nếu không có player nào trong phạm vi, chọn một vị trí ngẫu nhiên trong màn hình
         do
         {
-            float randomAngle = UnityEngine.Random.Range(60f, 300f);
+            float randomAngle = UnityEngine.Random.Range(-30f,210f);
             Debug.Log(randomAngle);
-            float randomDistance = UnityEngine.Random.Range(0f, maxDistance);
+            float randomDistance = UnityEngine.Random.Range(2f, maxDistance);
 
             float x = Mathf.Cos(randomAngle * Mathf.Deg2Rad) * randomDistance;
             float y = Mathf.Sin(randomAngle * Mathf.Deg2Rad) * randomDistance;
@@ -130,25 +130,25 @@ public class Enemy : Character
     void ThrowDice(Vector3 targetPoint)
     {
         Rigidbody2D rb = _currentDice.GetComponent<Rigidbody2D>();
-   
+        ChangeAnim("throw");
         if (rb != null)
         {
             StartCoroutine(ThrowDiceCoroutine(rb, targetPoint));
             _currentDice.GetComponent<BoxCollider2D>().enabled = true;
         }
     }
-        private Vector3 GetRandomDirection()
-        {
-            // Lấy một hướng ngẫu nhiên từ các hướng hợp lệ
-            List<Vector2> validDirections = gridMovement.GetValidDirections(gridMovement._currentCell);
-            if (validDirections.Count == 0) return Vector3.zero;
+    private Vector3 GetRandomDirection()
+    {
+        // Lấy một hướng ngẫu nhiên từ các hướng hợp lệ
+        List<Vector2> validDirections = gridMovement.GetValidDirections(gridMovement._currentCell);
+        if (validDirections.Count == 0) return Vector3.zero;
 
-            Vector2 chosenDirection = validDirections[UnityEngine.Random.Range(0, validDirections.Count)];
-            return new Vector3(chosenDirection.x, chosenDirection.y, 0);
-        }
+        Vector2 chosenDirection = validDirections[UnityEngine.Random.Range(0, validDirections.Count)];
+        return new Vector3(chosenDirection.x, chosenDirection.y, 0);
+    }
 
 
-        IEnumerator ThrowDiceCoroutine(Rigidbody2D rb, Vector3 targetPoint)
+    IEnumerator ThrowDiceCoroutine(Rigidbody2D rb, Vector3 targetPoint)
         {
             Vector3 startPos = rb.transform.position;
             float journeyLength = Vector3.Distance(startPos, targetPoint);
@@ -242,7 +242,7 @@ public class Enemy : Character
 
     public int RandomStep()
     {
-        return UnityEngine.Random.Range(1, 6);
+        return UnityEngine.Random.Range(1, 7);
     }
 
     public void ChangeAnim(string animName)

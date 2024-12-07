@@ -8,6 +8,7 @@ public class Character : MonoBehaviour
     public bool isYourTurn;
     public int maxHp;
     public int currentHp;
-    public Vector3 startPos;
+    public GameObject startPos;
+    public bool Death;
    
 }

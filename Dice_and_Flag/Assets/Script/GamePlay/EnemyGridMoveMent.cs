@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UIElements;
 
 public class EnemyGridMoveMent : MonoBehaviour
 {
@@ -35,6 +36,23 @@ public class EnemyGridMoveMent : MonoBehaviour
 
         Stunning = false;
     }
+    private void Update()
+    {
+
+        if (!Stunning && !isMoving)
+        {
+            Vector2 position = new Vector2(transform.position.x, transform.position.y);
+            Vector2 currentCell = new Vector2(_currentCell.x, _currentCell.y);
+            if (Vector2.Distance(position, currentCell) >= 0.1f)
+            {
+
+                MoveReturn();
+            }
+
+        }
+    }
+     
+
 
     public void Move(Vector2 direction, int steps)
     {
@@ -66,7 +84,7 @@ public class EnemyGridMoveMent : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Dice"))
         {
-            if (collision.gameObject.GetComponent<Dice>().Invicable && !Stunning)
+            if (collision.gameObject.GetComponent<Dice>().Invicable && !Stunning && collision.gameObject != enemy._currentDice)
             {
                 enemy.ChangeAnim("stun");
                 Stunning = true;
@@ -80,12 +98,22 @@ public class EnemyGridMoveMent : MonoBehaviour
                     enemy.sprite.flipX = true;
                 }
             }
+            else if (!collision.gameObject.GetComponent<Dice>().Invicable)
+            {
+                
+                Vector2 position = new Vector2(transform.position.x, transform.position.y);
+                Vector2 currentCell = new Vector2(_currentCell.x, _currentCell.y);
+                if (Vector2.Distance(position, currentCell) >= 0.1f)
+                { 
+                    MoveReturn();
+                }
+            }
         }
     }
     IEnumerator ResetStun()
     {
         yield return new WaitForSeconds(2f);
-        Stunning = false;
+        
         MoveReturn();
     }
     void MoveReturn()
@@ -118,10 +146,8 @@ public class EnemyGridMoveMent : MonoBehaviour
         transform.position = targetPosition;
         isMoving = false; // Đặt lại cờ khi di chuyển hoàn tất
         enemy.ChangeAnim("idle");
+        Stunning = false;
     }
-
-
-
     private IEnumerator MoveThroughCells(Vector3Int startCell, Vector2 initialDirection, int steps)
     {
         isMoving = true;
@@ -150,7 +176,7 @@ public class EnemyGridMoveMent : MonoBehaviour
                 // Tìm hướng ngược lại của initialDirection
                 Vector2 oppositeDirection = -initialDirection;
 
-                if (validDirections.Count == 2)
+                if (validDirections.Count <= 2)
                 {
                     // Chọn hướng hợp lệ duy nhất khác với hướng ngược lại của initialDirection
                     foreach (Vector2 direction in validDirections)
@@ -158,6 +184,7 @@ public class EnemyGridMoveMent : MonoBehaviour
                         if (direction != oppositeDirection)
                         {
                             currentDirection = direction;
+                     
                             break;
                         }
                     }
@@ -166,7 +193,7 @@ public class EnemyGridMoveMent : MonoBehaviour
                 else
                 {
                     // Nếu có nhiều hơn 2 hướng đi tại vị trí hiện tại
-                    validDirections.Remove(oppositeDirection); // Loại bỏ hướng ngược lại
+                    validDirections.Remove(oppositeDirection);
                     if (validDirections.Count > 0)
                     {
                         // Chọn ngẫu nhiên một hướng hợp lệ từ danh sách còn lại
@@ -180,7 +207,6 @@ public class EnemyGridMoveMent : MonoBehaviour
                     }
                 }
             }
-
             // Di chuyển đến ô tiếp theo
             Vector3 startPos = transform.position;
             Vector3 endPos = tilemap.CellToWorld(nextCell) + tilemap.tileAnchor;
@@ -192,21 +218,34 @@ public class EnemyGridMoveMent : MonoBehaviour
                 yield return null;
             }
 
+
             // Cập nhật vị trí sau khi đến ô
             transform.position = endPos;
             currentCell = nextCell;
             remainingSteps--;
             enemy.NameText.text = remainingSteps.ToString();
             List<Vector2> currentValidDirections = GetValidDirections(currentCell);
+           
 
             if (currentValidDirections.Count >= 3 && remainingSteps > 0)
             {
-
-                Debug.Log(currentValidDirections.Count);
                 enemy.stepDice = remainingSteps;
-                enemy.ChangeAnim("idle");
-                break;
-
+                // Tìm hướng ngược lại của initialDirection
+                Vector2 oppositeDirection = -initialDirection;
+                // Nếu có nhiều hơn 2 hướng đi tại vị trí hiện tại
+                currentValidDirections.Remove(oppositeDirection);
+                currentValidDirections.Remove(initialDirection);
+                if (currentValidDirections.Count > 0 && remainingSteps >0 )
+                {
+                    // Chọn ngẫu nhiên một hướng hợp lệ từ danh sách còn lại
+                    currentDirection = currentValidDirections[UnityEngine.Random.Range(0, currentValidDirections.Count)];
+                    nextCell = currentCell + new Vector3Int((int)currentDirection.x, (int)currentDirection.y, 0);
+                }
+                else
+                {
+                    // Nếu không còn hướng nào khác ngoài hướng ngược lại, dừng lại
+                    break;
+                }
             }
         }
         _currentCell = currentCell;

@@ -36,7 +36,23 @@ public class GirdMoveMent : MonoBehaviour
      
         Stunning = false;
     }
-    
+    public void Update()
+    {
+        if (!Stunning && !isMoving)
+        {
+           
+            Vector2 position = new Vector2(transform.position.x, transform.position.y);
+            Vector2 currentCell = new Vector2(_currentCell.x, _currentCell.y);
+            if (Vector2.Distance(position, currentCell) >= 0.3f)
+            {
+
+                MoveReturn();
+                Debug.Log("!");
+            }
+
+        }
+    }
+
     public void Move(Vector2 direction, int steps)
     {
         if (isMoving) return;
@@ -67,7 +83,7 @@ public class GirdMoveMent : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Dice"))
         {
-            if (collision.gameObject.GetComponent<Dice>().Invicable && !Stunning)
+            if (collision.gameObject.GetComponent<Dice>().Invicable && !Stunning && collision.gameObject != player._currentDice)
             {
                 player.ChangeAnim("stun");
                 Stunning = true;
@@ -89,7 +105,7 @@ public class GirdMoveMent : MonoBehaviour
         Stunning = false;
         MoveReturn();
     }
-    void MoveReturn()
+    public void MoveReturn()
     {
         // Vị trí ban đầu hoặc vị trí mục tiêu để trở về
         Vector3 targetPosition = _currentCell; // startPosition là vị trí ban đầu của đối tượng
@@ -151,7 +167,7 @@ public class GirdMoveMent : MonoBehaviour
                 // Tìm hướng ngược lại của initialDirection
                 Vector2 oppositeDirection = -initialDirection;
 
-                if (validDirections.Count == 2)
+                if (validDirections.Count <= 2)
                 {
                     // Chọn hướng hợp lệ duy nhất khác với hướng ngược lại của initialDirection
                     foreach (Vector2 direction in validDirections)
@@ -159,6 +175,7 @@ public class GirdMoveMent : MonoBehaviour
                         if (direction != oppositeDirection)
                         {
                             currentDirection = direction;
+                            Debug.Log(direction);
                             break;
                         }
                     }
@@ -193,8 +210,6 @@ public class GirdMoveMent : MonoBehaviour
 
             if (currentValidDirections.Count >= 3 && remainingSteps > 0)
             {
-
-
                 player.stepDice = remainingSteps;
                 player.ChangeAnim("idle");
                 player.CanMove = true;

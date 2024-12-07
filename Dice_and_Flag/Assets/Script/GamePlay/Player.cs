@@ -10,10 +10,8 @@ public class Player : Character
     public float maxDistance = 5f; // Tầm ném tối đa
     public int resolution = 50; // Số điểm trên quỹ đạo
     public Transform spawnPosition ; // Vị trí cố định để tạo xúc xắc
-
-    [SerializeField] private GameObject _currentDice; // Viên xúc xắc hiện tại
+    public GameObject _currentDice; // Viên xúc xắc hiện tại
     private bool _isDragging = false; // Để kiểm tra trạng thái kéo chuột
-
     [SerializeField]private GirdMoveMent gridMovement;
     public GameObject targetSpritePrefab;
     private GameObject targetSpriteInstance;
@@ -45,14 +43,14 @@ public class Player : Character
 
     void Update()
     {
-        
+
         if (isYourTurn)
         {
-      
+
             if (Input.GetMouseButtonDown(0) && _currentDice == null && !gridMovement.isMoving && !CanMove)
             {
                 SpawnDice();
-               
+
                 _isDragging = true;
                 NameText.text = "   ";
                 ChangeAnim("hold");
@@ -96,21 +94,32 @@ public class Player : Character
                 }
             }
         }
-      
+
 
         if (CanMove)
         {
             NameText.text = "   ";
-            foreach(Vector2 dir in gridMovement.GetValidDirections(gridMovement._currentCell))
+            Vector2 position = new Vector2(transform.position.x, transform.position.y);
+            Vector2 currentCell = new Vector2(gridMovement._currentCell.x, gridMovement._currentCell.y);
+            if (Vector2.Distance(position,currentCell)<=1)
             {
-                for (int i = 0;i <= btn.Length-1; i++)
+                foreach (Vector2 dir in gridMovement.GetValidDirections(gridMovement._currentCell))
                 {
-                    if(dir == btn[i].dir)
+                    for (int i = 0; i <= btn.Length - 1; i++)
                     {
-                        btn[i].gameObject.SetActive(true);
+                        if (dir == btn[i].dir)
+                        {
+                            btn[i].gameObject.SetActive(true);
+                        }
                     }
                 }
             }
+            else
+            {
+                gridMovement.MoveReturn();
+            }
+          
+            
         }
         else
         {
@@ -118,188 +127,188 @@ public class Player : Character
             {
                 NameText.text = Name;
             }
-           
-            for (int i = 0; i <= btn.Length-1; i++)
+
+            for (int i = 0; i <= btn.Length - 1; i++)
             {
                 btn[i].gameObject.SetActive(false);
+          
             }
         }
+        
     }
-
-    void DrawTrajectory(Vector2 start, Vector2 end)
-    {
-        lineRenderer.positionCount = resolution;
-        Vector3[] points = new Vector3[resolution];
-
-        Vector3 controlPoint = (start + end) / 2;
-        controlPoint.y += Vector3.Distance(start, end) * 0.5f; // Độ cao của đường cong
-
-        for (int i = 0; i < resolution; i++)
+        void DrawTrajectory(Vector2 start, Vector2 end)
         {
-            float t = i / (float)(resolution - 1);
+            lineRenderer.positionCount = resolution;
+            Vector3[] points = new Vector3[resolution];
 
-            // Tính toán vị trí trên đường cong Bezier bậc 2
-            Vector3 point1 = Vector3.Lerp(start, controlPoint, t);
-            Vector3 point2 = Vector3.Lerp(controlPoint, end, t);
-            points[i] = Vector3.Lerp(point1, point2, t);
-        }
+            Vector3 controlPoint = (start + end) / 2;
+            controlPoint.y += Vector3.Distance(start, end) * 0.5f; // Độ cao của đường cong
 
-        lineRenderer.SetPositions(points);
-
-        // Đặt sprite hình dấu X ở đầu target và điều chỉnh tọa độ Z
-        if (targetSpriteInstance != null)
-        {
-            Vector3 endPosition = end;
-            endPosition.z = -3;
-            targetSpriteInstance.transform.position = endPosition;
-            if(targetSpriteInstance.transform.position.x > transform.position.x)
+            for (int i = 0; i < resolution; i++)
             {
-                sprite.flipX = true;
+                float t = i / (float)(resolution - 1);
+
+                // Tính toán vị trí trên đường cong Bezier bậc 2
+                Vector3 point1 = Vector3.Lerp(start, controlPoint, t);
+                Vector3 point2 = Vector3.Lerp(controlPoint, end, t);
+                points[i] = Vector3.Lerp(point1, point2, t);
             }
-            else
+
+            lineRenderer.SetPositions(points);
+
+            // Đặt sprite hình dấu X ở đầu target và điều chỉnh tọa độ Z
+            if (targetSpriteInstance != null)
             {
-                sprite.flipX = false;
-            }
-        }
-    }
-
-    void ThrowDice(Vector3 targetPoint)
-    {
-        Rigidbody2D rb = _currentDice.GetComponent<Rigidbody2D>();
-
-        if (rb != null)
-        {
-            StartCoroutine(ThrowDiceCoroutine(rb, targetPoint));
-            _currentDice.GetComponent<BoxCollider2D>().enabled = true;
-        }
-
-     
-        lineRenderer.positionCount = 0;
-    }
-
-    IEnumerator ThrowDiceCoroutine(Rigidbody2D rb, Vector3 targetPoint)
-    {
-     
-        Vector3 startPos = rb.transform.position;
-       
-        float journeyLength = Vector3.Distance(startPos, targetPoint);
-        float throwDuration = journeyLength / throwForce; // Thời gian di chuyển dựa vào khoảng cách
-
-        float elapsedTime = 0;
-
-        // Tính toán đường cong
-        Vector3 controlPoint = (startPos + targetPoint) / 2;
-        controlPoint.y += journeyLength * 0.5f; // Độ cao của đường cong
-
-        while (elapsedTime < throwDuration && rb!= null)
-        {
-            float t = elapsedTime / throwDuration;
-
-            // Tính toán vị trí trên đường cong Bezier bậc 2
-            Vector3 newPosition = Vector3.Lerp(
-                Vector3.Lerp(startPos, controlPoint, t),
-                Vector3.Lerp(controlPoint, targetPoint, t),
-                t
-            );
-
-            rb.MovePosition(newPosition);
-
-            // Thêm hiệu ứng xoay
-            rb.angularVelocity = 360f;
-
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-
-
-        stepDice = RandomStep();
-        yield return null;
-        if (_currentDice!= null) 
-        {
-            _currentDice.GetComponent<Dice>().step = stepDice;
-        }
-        CanMove = true;
-        _currentDice.GetComponent<Dice>().Invicable = false;
-
-        StartCoroutine(BounceEffect(rb));
-        _currentDice = null;
-    }
-
-    IEnumerator BounceEffect(Rigidbody2D rb)
-    {
-        if (rb != null) {
-            float bounceHeight = 0.5f; // Độ cao nảy ban đầu
-            float bounceDuration = 0.2f; // Thời gian mỗi lần nảy
-            int bounceCount = 3; // Số lần nảy
-
-            Vector3 originalPos = rb.transform.position;
-
-
-            for (int i = 0; i < bounceCount; i++)
-            {
-                if (rb != null)
+                Vector3 endPosition = end;
+                endPosition.z = -3;
+                targetSpriteInstance.transform.position = endPosition;
+                if (targetSpriteInstance.transform.position.x > transform.position.x)
                 {
-                    // Nảy lên
-                    float elapsedTime = 0;
-                    Vector3 startPos = rb.transform.position;
-                    Vector3 bouncePos = startPos + Vector3.up * (bounceHeight);
-
-                    while (elapsedTime < bounceDuration / 2)
-                    {
-                        float t = elapsedTime / (bounceDuration / 2);
-                        rb.MovePosition(Vector3.Lerp(startPos, bouncePos, t));
-                        elapsedTime += Time.deltaTime;
-                        yield return null;
-                    }
-
-                    // Rơi xuống
-                    elapsedTime = 0;
-                    startPos = rb.transform.position;
-
-                    while (elapsedTime < bounceDuration / 2)
-                    {
-                        float t = elapsedTime / (bounceDuration / 2);
-                        rb.MovePosition(Vector3.Lerp(startPos, originalPos, t));
-                        elapsedTime += Time.deltaTime;
-                        yield return null;
-                    }
-
-                    // Giảm độ cao cho lần nảy tiếp theo
-                    bounceHeight *= 0.5f;
-                    bounceDuration *= 0.8f;
-                    // Khi đến đích
-                    rb.velocity = Vector2.zero;
-                    rb.angularVelocity = 0;
-                    yield return new WaitForSeconds(0.1f);
+                    sprite.flipX = true;
+                }
+                else
+                {
+                    sprite.flipX = false;
                 }
             }
         }
 
-
-    }
-
-    
-    void SpawnDice()
-    {
-        _currentDice = Instantiate(dicePrefab, spawnPosition.position, Quaternion.identity);
-        _currentDice.GetComponent<Rigidbody2D>().gravityScale = 0;
-        _currentDice.GetComponent<BoxCollider2D>().enabled = false;
-        lineRenderer.positionCount = 0; // Xóa quỹ đạo cũ
-    }
-    public int RandomStep()
-    {
-        return UnityEngine.Random.Range(1, 6);
-    }
-
-    public void ChangeAnim(string animName)
-    {
-        if (currentAnimName != animName)
+        void ThrowDice(Vector3 targetPoint)
         {
-            anim.ResetTrigger(animName);
-            currentAnimName = animName;
-            anim.SetTrigger(animName);
+            Rigidbody2D rb = _currentDice.GetComponent<Rigidbody2D>();
+
+            if (rb != null)
+            {
+                StartCoroutine(ThrowDiceCoroutine(rb, targetPoint));
+                _currentDice.GetComponent<BoxCollider2D>().enabled = true;
+            }
+
+
+            lineRenderer.positionCount = 0;
+        }
+
+        IEnumerator ThrowDiceCoroutine(Rigidbody2D rb, Vector3 targetPoint)
+        {
+
+            Vector3 startPos = rb.transform.position;
+
+            float journeyLength = Vector3.Distance(startPos, targetPoint);
+            float throwDuration = journeyLength / throwForce; // Thời gian di chuyển dựa vào khoảng cách
+
+            float elapsedTime = 0;
+
+            // Tính toán đường cong
+            Vector3 controlPoint = (startPos + targetPoint) / 2;
+            controlPoint.y += journeyLength * 0.5f; // Độ cao của đường cong
+
+            while (elapsedTime < throwDuration && rb != null)
+            {
+                float t = elapsedTime / throwDuration;
+
+                // Tính toán vị trí trên đường cong Bezier bậc 2
+                Vector3 newPosition = Vector3.Lerp(
+                    Vector3.Lerp(startPos, controlPoint, t),
+                    Vector3.Lerp(controlPoint, targetPoint, t),
+                    t
+                );
+
+                rb.MovePosition(newPosition);
+
+                // Thêm hiệu ứng xoay
+                rb.angularVelocity = 360f;
+
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+
+
+            stepDice = RandomStep();
+            yield return null;
+            if (_currentDice != null)
+            {
+                _currentDice.GetComponent<Dice>().step = stepDice;
+            }
+            CanMove = true;
+            _currentDice.GetComponent<Dice>().Invicable = false;
+
+            StartCoroutine(BounceEffect(rb));
+            _currentDice = null;
+        }
+
+        IEnumerator BounceEffect(Rigidbody2D rb)
+        {
+            if (rb != null) {
+                float bounceHeight = 0.5f; // Độ cao nảy ban đầu
+                float bounceDuration = 0.2f; // Thời gian mỗi lần nảy
+                int bounceCount = 3; // Số lần nảy
+
+                Vector3 originalPos = rb.transform.position;
+
+
+                for (int i = 0; i < bounceCount; i++)
+                {
+                    if (rb != null)
+                    {
+                        // Nảy lên
+                        float elapsedTime = 0;
+                        Vector3 startPos = rb.transform.position;
+                        Vector3 bouncePos = startPos + Vector3.up * (bounceHeight);
+
+                        while (elapsedTime < bounceDuration / 2)
+                        {
+                            float t = elapsedTime / (bounceDuration / 2);
+                            rb.MovePosition(Vector3.Lerp(startPos, bouncePos, t));
+                            elapsedTime += Time.deltaTime;
+                            yield return null;
+                        }
+
+                        // Rơi xuống
+                        elapsedTime = 0;
+                        startPos = rb.transform.position;
+
+                        while (elapsedTime < bounceDuration / 2)
+                        {
+                            float t = elapsedTime / (bounceDuration / 2);
+                            rb.MovePosition(Vector3.Lerp(startPos, originalPos, t));
+                            elapsedTime += Time.deltaTime;
+                            yield return null;
+                        }
+
+                        // Giảm độ cao cho lần nảy tiếp theo
+                        bounceHeight *= 0.5f;
+                        bounceDuration *= 0.8f;
+                        // Khi đến đích
+                        rb.velocity = Vector2.zero;
+                        rb.angularVelocity = 0;
+                        yield return new WaitForSeconds(0.1f);
+                    }
+                }
+            }
+
+
+        }
+
+
+        void SpawnDice()
+        {
+            _currentDice = Instantiate(dicePrefab, spawnPosition.position, Quaternion.identity);
+            _currentDice.GetComponent<Rigidbody2D>().gravityScale = 0;
+            _currentDice.GetComponent<BoxCollider2D>().enabled = false;
+            lineRenderer.positionCount = 0; // Xóa quỹ đạo cũ
+        }
+        public int RandomStep()
+        {
+            return UnityEngine.Random.Range(1, 7);
+        }
+
+        public void ChangeAnim(string animName)
+        {
+            if (currentAnimName != animName)
+            {
+                anim.ResetTrigger(animName);
+                currentAnimName = animName;
+                anim.SetTrigger(animName);
+            }
         }
     }
 
-
-}
