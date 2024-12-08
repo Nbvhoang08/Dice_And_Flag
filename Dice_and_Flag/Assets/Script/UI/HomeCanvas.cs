@@ -10,7 +10,7 @@ public class HomeCanvas : UICanvas
     {
         SceneManager.LoadScene("GamePlay");
         //StartCoroutine(Play());
-        UIManager.Instance.CloseUIDirectly<HomeCanvas>();
+        UIManager.Instance.CloseUI<HomeCanvas>(0.3f);
         UIManager.Instance.OpenUI<GamePlayCanvas>();
         SoundManager.Instance.PlayClickSound();
     }

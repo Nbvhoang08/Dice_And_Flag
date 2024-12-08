@@ -46,13 +46,52 @@ public class Enemy : Character
 
     void Update()
     {
-        if (isYourTurn)
+        if (!Death)
         {
-            StartCoroutine(EnemyTurn());
-            isYourTurn = false; // Đảm bảo chỉ thực hiện một lần khi đến lượt
+            if (isYourTurn)
+            {
+                StartCoroutine(EnemyTurn());
+                isYourTurn = false; // Đảm bảo chỉ thực hiện một lần khi đến lượt
+            }
+            else
+            {
+                Vector2 position = new Vector2(transform.position.x, transform.position.y);
+                Vector2 currentCell = new Vector2(gridMovement._currentCell.x, gridMovement._currentCell.y);
+                if (Vector2.Distance(position, currentCell) >= 0.5)
+                {
+                    gridMovement.MoveReturn();
+                }
+            }
         }
-    }
+        else
+        {
+            if (isYourTurn)
+            {
+                currentHp = maxHp;
+                gameManager.Next();
+            } 
+            else
+            {
+                Dead();
+            }
+        }
+        if (!gridMovement.isMoving)
+        {
+            NameText.text = name;
+        }
 
+    }
+    public void Dead()
+    {
+
+        transform.position = startPos.transform.position;
+        gridMovement._currentCell = Vector3Int.RoundToInt(startPos.transform.position);
+        if (Vector2.Distance(transform.position, startPos.transform.position) <= 0.1f)
+        {
+            ChangeAnim("stun");
+        }
+
+    }
     private IEnumerator EnemyTurn()
     {
         // Spawn dice

@@ -83,6 +83,7 @@ public class GirdMoveMent : MonoBehaviour
                 Stunning = true;
                 StartCoroutine(ResetStun());
                 player.currentHp --;
+                collision.gameObject.GetComponent<Dice>().durability = 0;
                 if(collision.gameObject.transform.position.x<= transform.position.x)
                 {
                     player.sprite.flipX = false;

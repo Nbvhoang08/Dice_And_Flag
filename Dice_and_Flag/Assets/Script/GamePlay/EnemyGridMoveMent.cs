@@ -84,11 +84,12 @@ public class EnemyGridMoveMent : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Dice"))
         {
-            if (collision.gameObject.GetComponent<Dice>().Invicable && !Stunning && collision.gameObject != enemy._currentDice)
+            if (collision.gameObject.GetComponent<Dice>().Invicable && !Stunning && collision.gameObject != enemy._currentDice && !enemy.Death)
             {
                 enemy.ChangeAnim("stun");
                 Stunning = true;
                 StartCoroutine(ResetStun());
+                collision.gameObject.GetComponent<Dice>().durability = 0;
                 if (collision.gameObject.transform.position.x <= transform.position.x)
                 {
                     enemy.sprite.flipX = false;
@@ -116,7 +117,7 @@ public class EnemyGridMoveMent : MonoBehaviour
         
         MoveReturn();
     }
-    void MoveReturn()
+    public void MoveReturn()
     {
         // Vị trí ban đầu hoặc vị trí mục tiêu để trở về
         Vector3 targetPosition = _currentCell; // startPosition là vị trí ban đầu của đối tượng
@@ -235,6 +236,7 @@ public class EnemyGridMoveMent : MonoBehaviour
                 // Nếu có nhiều hơn 2 hướng đi tại vị trí hiện tại
                 currentValidDirections.Remove(oppositeDirection);
                 currentValidDirections.Remove(initialDirection);
+                enemy.NameText.text = remainingSteps.ToString();
                 if (currentValidDirections.Count > 0 && remainingSteps >0 )
                 {
                     // Chọn ngẫu nhiên một hướng hợp lệ từ danh sách còn lại

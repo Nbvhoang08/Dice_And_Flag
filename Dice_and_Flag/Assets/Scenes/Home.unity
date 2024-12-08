@@ -3885,6 +3885,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isDestroyOnClose: 0
+  gameManager: {fileID: 0}
+  fullHeart: {fileID: 21300000, guid: 72e949a3e85f91842bc59de0c2ddbf1f, type: 3}
+  emptyHeart: {fileID: 21300000, guid: 473d8c42c48dc8f47b3835867d5f1bac, type: 3}
+  heartImageLists:
+  - heartImages:
+    - {fileID: 1118157824}
+    - {fileID: 174978003}
+    - {fileID: 70867786}
+  - heartImages:
+    - {fileID: 1356541622}
+    - {fileID: 386544025}
+    - {fileID: 1831036397}
+  - heartImages:
+    - {fileID: 1749350496}
+    - {fileID: 2131860856}
+    - {fileID: 301605678}
+  - heartImages:
+    - {fileID: 803960083}
+    - {fileID: 1188890402}
+    - {fileID: 1963212177}
 --- !u!1 &1626245293
 GameObject:
   m_ObjectHideFlags: 0
