@@ -24,9 +24,11 @@ public class Dice : MonoBehaviour
         diceSprite = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
         Invicable = true;
+        Invoke("reduceDurability", 5);
     }
     void Update()
     {
+        
         if ((IsRotating()))
         {
             scoreSprite.sprite = null;
@@ -95,7 +97,10 @@ public class Dice : MonoBehaviour
         // Hủy đối tượng dice
         Destroy(gameObject);
     }
-
+    void reduceDurability()
+    {
+        durability--;
+    }
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if(collision.gameObject.CompareTag("Dice"))

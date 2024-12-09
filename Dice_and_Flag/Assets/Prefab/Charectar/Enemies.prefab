@@ -356,7 +356,7 @@ MonoBehaviour:
   isYourTurn: 0
   maxHp: 3
   currentHp: 0
-  startPos: {x: 0, y: 0, z: 0}
+  startPos: {fileID: 0}
   dicePrefab: {fileID: 4083953139246377255, guid: 0e1985948aecf784ea87b50dae192823, type: 3}
   throwForce: 10
   maxDistance: 10
@@ -370,11 +370,6 @@ MonoBehaviour:
   sprite: {fileID: 2126400621938068644}
   Name: 
   NameText: {fileID: 6594920590110769417}
-  player1: {fileID: 0}
-  player2: {fileID: 0}
-  detectionRange: 10
-  minDistanceToPlayer: 2
-  maxDistanceToPlayer: 5
 --- !u!114 &7770087566158874508
 MonoBehaviour:
   m_ObjectHideFlags: 0

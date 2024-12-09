@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using System;
+using JetBrains.Annotations;
+using static Unity.IO.LowLevel.Unsafe.AsyncReadManagerMetrics;
 
 
 
@@ -13,22 +15,23 @@ public class Enemy : Character
     public float throwForce = 10f; // Lực ném
     public float maxDistance = 5f; // Tầm ném tối đa
     public Transform spawnPosition; // Vị trí cố định để tạo xúc xắc
-
+    public bool bringFlag;
     public GameObject _currentDice; // Viên xúc xắc hiện tại
     [SerializeField] private EnemyGridMoveMent gridMovement;
     public int stepDice = 0;
     public bool CanMove;
     [SerializeField] private Animator anim;
+    public Enemy teamMember;
+    public Vector3Int targetCell;
+    public Vector3Int BaseCell ;
+    public Vector3Int FlagCell;
+    public Transform flag;
     private string _currentAnimName;
     public GameManager gameManager;
     public SpriteRenderer sprite;
     public String Name;
     public TextMeshPro NameText;
-    [SerializeField] private Transform player1; // Đối tượng player 1
-    [SerializeField] private Transform player2; // Đối tượng player 2
-    [SerializeField] private float detectionRange = 10f; // Phạm vi phát hiện player
-    [SerializeField] private float minDistanceToPlayer = 2f; // Khoảng cách ném tối thiểu tới player
-    [SerializeField] private float maxDistanceToPlayer = 5f; // Khoảng cách ném tối đa tới player
+
 
     private void Awake()
     {
@@ -46,12 +49,18 @@ public class Enemy : Character
 
     void Update()
     {
+        FlagCell = Vector3Int.FloorToInt(new Vector3(flag.position.x, flag.position.y,0));
         if (!Death)
         {
             if (isYourTurn)
             {
-                StartCoroutine(EnemyTurn());
-                isYourTurn = false; // Đảm bảo chỉ thực hiện một lần khi đến lượt
+                if (!gridMovement.isMoving)
+                {
+                    StartCoroutine(EnemyTurn());
+                    // Đảm bảo chỉ thực hiện một lần khi đến lượt
+                    isYourTurn = false;
+                }
+               
             }
             else
             {
@@ -62,6 +71,15 @@ public class Enemy : Character
                     gridMovement.MoveReturn();
                 }
             }
+            if(!bringFlag && !teamMember.bringFlag)
+            {
+                targetCell = FlagCell;
+            }
+            else if (bringFlag || teamMember.bringFlag)
+            {
+                targetCell = BaseCell;
+            }
+            
         }
         else
         {
@@ -74,10 +92,11 @@ public class Enemy : Character
             {
                 Dead();
             }
+            bringFlag = false;
         }
         if (!gridMovement.isMoving)
         {
-            NameText.text = name;
+            NameText.text = Name;
         }
 
     }
@@ -102,6 +121,7 @@ public class Enemy : Character
         // Chọn hướng ngẫu nhiên và ném xúc xắc
         Vector3 randomDirection = GetRandomTarget();
         ThrowDice(randomDirection);
+       
     }
 
     private Vector3 GetRandomTarget()
@@ -111,33 +131,12 @@ public class Enemy : Character
         int attempts = 0;
 
         Vector3 randomTarget;
-
-        // Kiểm tra khoảng cách đến từng player
-        bool isPlayer1InRange = Vector3.Distance(player1.position, spawnPosition.position) <= detectionRange;
-        bool isPlayer2InRange = Vector3.Distance(player2.position, spawnPosition.position) <= detectionRange;
-
-        // Nếu chỉ player1 trong phạm vi, ném về phía player1
-        if (isPlayer1InRange && !isPlayer2InRange)
-        {
-            return GetTargetTowardsPlayer(player1);
-        }
-        // Nếu chỉ player2 trong phạm vi, ném về phía player2
-        else if (isPlayer2InRange && !isPlayer1InRange)
-        {
-            return GetTargetTowardsPlayer(player2);
-        }
-        // Nếu cả hai player trong phạm vi, ném ngẫu nhiên về một trong hai
-        else if (isPlayer1InRange && isPlayer2InRange)
-        {
-            Transform chosenPlayer = UnityEngine.Random.value > 0.5f ? player1 : player2;
-            return GetTargetTowardsPlayer(chosenPlayer);
-        }
-
+    
         // Nếu không có player nào trong phạm vi, chọn một vị trí ngẫu nhiên trong màn hình
         do
         {
             float randomAngle = UnityEngine.Random.Range(-30f,210f);
-            Debug.Log(randomAngle);
+          
             float randomDistance = UnityEngine.Random.Range(2f, maxDistance);
 
             float x = Mathf.Cos(randomAngle * Mathf.Deg2Rad) * randomDistance;
@@ -156,19 +155,14 @@ public class Enemy : Character
             attempts++;
         } while (attempts < maxAttempts);
 
-            Debug.LogWarning("Không tìm được vị trí hợp lệ, trả về vị trí mặc định.");
             return spawnPosition.position;
     }
-    private Vector3 GetTargetTowardsPlayer(Transform player)
-    {
-        Vector3 direction = (player.position - spawnPosition.position).normalized;
-        float randomDistance = UnityEngine.Random.Range(minDistanceToPlayer, maxDistanceToPlayer);
-        return spawnPosition.position + direction * randomDistance;
-    }
+
 
     void ThrowDice(Vector3 targetPoint)
     {
         Rigidbody2D rb = _currentDice.GetComponent<Rigidbody2D>();
+        SoundManager.Instance.PlayVFXSound(0);
         ChangeAnim("throw");
         if (rb != null)
         {
@@ -176,19 +170,11 @@ public class Enemy : Character
             _currentDice.GetComponent<BoxCollider2D>().enabled = true;
         }
     }
-    private Vector3 GetRandomDirection()
-    {
-        // Lấy một hướng ngẫu nhiên từ các hướng hợp lệ
-        List<Vector2> validDirections = gridMovement.GetValidDirections(gridMovement._currentCell);
-        if (validDirections.Count == 0) return Vector3.zero;
-
-        Vector2 chosenDirection = validDirections[UnityEngine.Random.Range(0, validDirections.Count)];
-        return new Vector3(chosenDirection.x, chosenDirection.y, 0);
-    }
+   
 
 
     IEnumerator ThrowDiceCoroutine(Rigidbody2D rb, Vector3 targetPoint)
-        {
+    {
             Vector3 startPos = rb.transform.position;
             float journeyLength = Vector3.Distance(startPos, targetPoint);
             float throwDuration = journeyLength / throwForce;
@@ -208,15 +194,21 @@ public class Enemy : Character
             }
 
             stepDice = RandomStep();
-            gridMovement.Move(GetRandomDirection(),stepDice);
+            gridMovement.Move(gridMovement.GetRandomDirection(targetCell),stepDice);
+            Debug.Log("Direction" + gridMovement.GetRandomDirection(targetCell));
             if (_currentDice != null)
             {
                 _currentDice.GetComponent<Dice>().step = stepDice;
             }
             CanMove = true;
             StartCoroutine(BounceEffect(rb));
-            _currentDice.GetComponent<Dice>().Invicable = false;
-            _currentDice = null;
+            
+            if(_currentDice != null)
+            {
+                _currentDice.GetComponent<Dice>().Invicable = false;
+                _currentDice = null;
+            }
+           
         }
     IEnumerator BounceEffect(Rigidbody2D rb)
     {
@@ -241,7 +233,11 @@ public class Enemy : Character
                     while (elapsedTime < bounceDuration / 2)
                     {
                         float t = elapsedTime / (bounceDuration / 2);
-                        rb.MovePosition(Vector3.Lerp(startPos, bouncePos, t));
+                        if(rb != null)
+                        {
+                            rb.MovePosition(Vector3.Lerp(startPos, bouncePos, t));
+                        }
+                       
                         elapsedTime += Time.deltaTime;
                         yield return null;
                     }
@@ -253,7 +249,10 @@ public class Enemy : Character
                     while (elapsedTime < bounceDuration / 2)
                     {
                         float t = elapsedTime / (bounceDuration / 2);
-                        rb.MovePosition(Vector3.Lerp(startPos, originalPos, t));
+                        if (rb != null)
+                        {
+                            rb.MovePosition(Vector3.Lerp(startPos, originalPos, t));
+                        }
                         elapsedTime += Time.deltaTime;
                         yield return null;
                     }
@@ -262,8 +261,12 @@ public class Enemy : Character
                     bounceHeight *= 0.5f;
                     bounceDuration *= 0.8f;
                     // Khi đến đích
-                    rb.velocity = Vector2.zero;
-                    rb.angularVelocity = 0;
+                    if(rb != null)
+                    {
+                        rb.velocity = Vector2.zero;
+                        rb.angularVelocity = 0;
+                    }
+                   
                     yield return new WaitForSeconds(0.1f);
                 }
             }

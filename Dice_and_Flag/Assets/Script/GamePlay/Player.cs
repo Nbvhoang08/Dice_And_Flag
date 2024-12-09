@@ -194,7 +194,7 @@ public class Player : Character
         void ThrowDice(Vector3 targetPoint)
         {
             Rigidbody2D rb = _currentDice.GetComponent<Rigidbody2D>();
-
+            SoundManager.Instance.PlayVFXSound(0);
             if (rb != null)
             {
                 StartCoroutine(ThrowDiceCoroutine(rb, targetPoint));

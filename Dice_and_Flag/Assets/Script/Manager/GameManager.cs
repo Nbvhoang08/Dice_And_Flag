@@ -22,7 +22,6 @@ public class GameManager : MonoBehaviour
         character[currentIndex].isYourTurn = true;
         HasWon = false;
         GameOver = false;
-        GameOver = false;
     }
 
     // Update is called once per frame
@@ -30,6 +29,7 @@ public class GameManager : MonoBehaviour
     {
         CheckWonConditions();
         CheckLoseConditions();
+       
     }
     public void Next()
     {
@@ -41,10 +41,9 @@ public class GameManager : MonoBehaviour
         {
             currentIndex = 0;
         }
-        
-        for(int i = 0; i <=  character.Length-1; i++)
+        for (int i = 0; i <= character.Length - 1; i++)
         {
-            if(i != currentIndex)
+            if (i != currentIndex)
             {
                 character[i].isYourTurn = false;
             }
@@ -52,7 +51,7 @@ public class GameManager : MonoBehaviour
             {
                 character[i].isYourTurn = true;
             }
-            
+         
         }
 
     }

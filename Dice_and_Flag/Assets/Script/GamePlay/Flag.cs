@@ -9,11 +9,8 @@ public class Flag : MonoBehaviour
 {
     // Start is called before the first frame update
     public FlagType type;
-    
     private GameObject player;
-
     private bool followPlayer = false;
-
     private GameObject enemy;
     private bool followEnemy = false;
     public bool isDone;
@@ -58,7 +55,7 @@ public class Flag : MonoBehaviour
             // Di chuyển cờ để theo dõi người chơi
             Vector3 FollowTranfom = new Vector3(enemy.transform.position.x, enemy.transform.position.y, 0);
             transform.position = enemy.transform.position;
-            if (player.GetComponent<Enemy>().Death)
+            if (enemy.GetComponent<Enemy>().Death)
             {
                 followEnemy = false;
                 enemy = null;
@@ -86,7 +83,7 @@ public class Flag : MonoBehaviour
         }
 
 
-        if (type == FlagType.Player && collision.CompareTag("Enemy") && !isDone)
+        if (type == FlagType.Player && collision.CompareTag("Enemy") && !isDone && !followEnemy)
         {
             followEnemy = true;
             enemy = collision.gameObject;
@@ -98,6 +95,7 @@ public class Flag : MonoBehaviour
             {
                 followEnemy = false;
                 enemy = null;
+                enemy.GetComponent<Enemy>().bringFlag = true;
                 transform.position = collision.transform.position;
                 isDone = true;
                 gameManager.GameOver = true;

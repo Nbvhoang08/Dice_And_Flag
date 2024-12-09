@@ -84,7 +84,8 @@ public class GirdMoveMent : MonoBehaviour
                 StartCoroutine(ResetStun());
                 player.currentHp --;
                 collision.gameObject.GetComponent<Dice>().durability = 0;
-                if(collision.gameObject.transform.position.x<= transform.position.x)
+                SoundManager.Instance.PlayVFXSound(1);
+                if (collision.gameObject.transform.position.x<= transform.position.x)
                 {
                     player.sprite.flipX = false;
                 }
@@ -153,6 +154,7 @@ public class GirdMoveMent : MonoBehaviour
         {
             // Tìm ô tiếp theo
             Vector3Int nextCell = currentCell + new Vector3Int((int)currentDirection.x, (int)currentDirection.y, 0);
+           
             player.ChangeAnim("walk");
             // Nếu ô tiếp theo không hợp lệ
             if (!IsValidCell(nextCell))
@@ -171,7 +173,7 @@ public class GirdMoveMent : MonoBehaviour
                         if (direction != oppositeDirection)
                         {
                             currentDirection = direction;
-                            Debug.Log(direction);
+                      
                             break;
                         }
                     }
@@ -180,6 +182,7 @@ public class GirdMoveMent : MonoBehaviour
                 else
                 {
                     // Nếu có nhiều hơn 1 hướng đi tại vị trí hiện tại, dừng lại
+            
                     break;
                 }
             }
