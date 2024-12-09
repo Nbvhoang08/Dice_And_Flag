@@ -46,21 +46,23 @@ public class Enemy : Character
         anim = GetComponent<Animator>();
         CanMove = false;
     }
-
+    void LateUpdate()
+    {
+        FlagCell = GetValidRoundedCell(flag.position);
+    }
     void Update()
     {
-        FlagCell = Vector3Int.FloorToInt(new Vector3(flag.position.x, flag.position.y,0));
+     
         if (!Death)
         {
             if (isYourTurn)
             {
-                if (!gridMovement.isMoving)
+                if (!gridMovement.isMoving && !gridMovement.Stunning)
                 {
                     StartCoroutine(EnemyTurn());
                     // Đảm bảo chỉ thực hiện một lần khi đến lượt
                     isYourTurn = false;
-                }
-               
+                }     
             }
             else
             {
@@ -71,11 +73,11 @@ public class Enemy : Character
                     gridMovement.MoveReturn();
                 }
             }
-            if(!bringFlag && !teamMember.bringFlag)
+            if(!bringFlag)
             {
                 targetCell = FlagCell;
             }
-            else if (bringFlag || teamMember.bringFlag)
+            else
             {
                 targetCell = BaseCell;
             }
@@ -109,7 +111,45 @@ public class Enemy : Character
         {
             ChangeAnim("stun");
         }
+   
 
+
+    }
+    public Vector3Int GetValidRoundedCell(Vector3 position)
+    {
+        // Bước 1: Làm tròn tọa độ
+        Vector3Int roundedCell = Vector3Int.RoundToInt(new Vector3(position.x, position.y, 0));
+
+        // Bước 2: Kiểm tra ô làm tròn có hợp lệ không
+        if (gridMovement.IsValidCell(roundedCell))
+        {
+            return roundedCell; // Nếu hợp lệ, trả về ngay
+        }
+
+        // Bước 3: Tìm ô hợp lệ gần nhất
+        Vector3Int[] neighbors = new Vector3Int[]
+        {
+        roundedCell + Vector3Int.up,
+        roundedCell + Vector3Int.down,
+        roundedCell + Vector3Int.left,
+        roundedCell + Vector3Int.right,
+        roundedCell + new Vector3Int(1, 1, 0),
+        roundedCell + new Vector3Int(-1, 1, 0),
+        roundedCell + new Vector3Int(1, -1, 0),
+        roundedCell + new Vector3Int(-1, -1, 0)
+        };
+
+        foreach (var neighbor in neighbors)
+        {
+            if (gridMovement.IsValidCell(neighbor))
+            {
+                return neighbor; // Trả về ô hợp lệ đầu tiên tìm thấy
+            }
+        }
+
+        // Bước 4: Trường hợp không tìm thấy ô hợp lệ
+        Debug.LogWarning($"No valid cell found near position {position}");
+        return roundedCell; // Trả về giá trị làm tròn gốc (hoặc xử lý tùy trường hợp)
     }
     private IEnumerator EnemyTurn()
     {
@@ -195,7 +235,8 @@ public class Enemy : Character
 
             stepDice = RandomStep();
             gridMovement.Move(gridMovement.GetRandomDirection(targetCell),stepDice);
-            Debug.Log("Direction" + gridMovement.GetRandomDirection(targetCell));
+            //Debug.Log(gridMovement.GetRandomDirection(targetCell));   
+           
             if (_currentDice != null)
             {
                 _currentDice.GetComponent<Dice>().step = stepDice;

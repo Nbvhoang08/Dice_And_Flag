@@ -24,7 +24,7 @@ public class Dice : MonoBehaviour
         diceSprite = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
         Invicable = true;
-        Invoke("reduceDurability", 5);
+        InvokeRepeating("reduceDurability", 5, 5);
     }
     void Update()
     {

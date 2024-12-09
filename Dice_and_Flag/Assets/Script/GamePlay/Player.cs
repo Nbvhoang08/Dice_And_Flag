@@ -247,10 +247,14 @@ public class Player : Character
                 _currentDice.GetComponent<Dice>().step = stepDice;
             }
             CanMove = true;
-            _currentDice.GetComponent<Dice>().Invicable = false;
+            if (_currentDice != null)
+            {
+                _currentDice.GetComponent<Dice>().Invicable = false;
 
-            StartCoroutine(BounceEffect(rb));
-            _currentDice = null;
+                StartCoroutine(BounceEffect(rb));
+                _currentDice = null;
+            }
+            
         }
 
         IEnumerator BounceEffect(Rigidbody2D rb)
@@ -287,7 +291,11 @@ public class Player : Character
                         while (elapsedTime < bounceDuration / 2)
                         {
                             float t = elapsedTime / (bounceDuration / 2);
-                            rb.MovePosition(Vector3.Lerp(startPos, originalPos, t));
+                            if(rb != null)
+                            {
+                                rb.MovePosition(Vector3.Lerp(startPos, originalPos, t));
+                            }
+                            
                             elapsedTime += Time.deltaTime;
                             yield return null;
                         }
@@ -295,9 +303,13 @@ public class Player : Character
                         // Giảm độ cao cho lần nảy tiếp theo
                         bounceHeight *= 0.5f;
                         bounceDuration *= 0.8f;
-                        // Khi đến đích
-                        rb.velocity = Vector2.zero;
-                        rb.angularVelocity = 0;
+                    // Khi đến đích
+                        if (rb != null)
+                        {
+                            rb.velocity = Vector2.zero;
+                            rb.angularVelocity = 0;
+                        }
+                       
                         yield return new WaitForSeconds(0.1f);
                     }
                 }

@@ -7,12 +7,13 @@ using UnityEngine.UIElements;
 public class EnemyGridMoveMent : MonoBehaviour
 {
     // Start is called before the first frame update
-    
+    public Tilemap tilemap;
     public float moveSpeed = 5f;
     public Vector3Int _currentCell;
     public bool isMoving = false;
     public Enemy enemy;
     public bool Stunning;
+    public bool arrivedAdress;
     public void Awake()
     {
         if (tilemap == null)
@@ -25,9 +26,9 @@ public class EnemyGridMoveMent : MonoBehaviour
     private void Start()
     {
         _currentCell = tilemap.WorldToCell(transform.position);
-
-        // Lấy tọa độ chính giữa của ô lưới
-        Vector3 cellCenterPosition = tilemap.GetCellCenterWorld(_currentCell);
+        arrivedAdress = false;
+    // Lấy tọa độ chính giữa của ô lưới
+    Vector3 cellCenterPosition = tilemap.GetCellCenterWorld(_currentCell);
 
         // Đặt vị trí của đối tượng vào chính giữa ô
         transform.position = cellCenterPosition;
@@ -60,8 +61,8 @@ public class EnemyGridMoveMent : MonoBehaviour
         if (Stunning) return;
         StartCoroutine(MoveThroughCells(_currentCell, direction, steps));
     }
-    public Tilemap tilemap;
-    private bool IsValidCell(Vector3Int cell)
+   
+    public bool IsValidCell(Vector3Int cell)
     {
         return tilemap.HasTile(cell);
     }
@@ -84,14 +85,36 @@ public class EnemyGridMoveMent : MonoBehaviour
     }
     public Vector3 GetRandomDirection(Vector3Int targetCell)
     {
-        // Nếu đã ở ô đích, trả về vector không
-        if (_currentCell == targetCell) return Vector3.zero;
+        // Nếu đã đến ô mục tiêu
+        if (_currentCell == targetCell)
+        {
+            arrivedAdress = true;
+            Debug.Log($"Target cell reached: {_currentCell}");
 
-        // Sử dụng thuật toán tìm kiếm theo chiều rộng (BFS)
+            // Lấy danh sách các hướng hợp lệ từ ô hiện tại
+            List<Vector2> validDirections = GetValidDirections(_currentCell);
+            if (validDirections.Count > 0)
+            {
+                // Chọn ngẫu nhiên một hướng hợp lệ
+                Vector2 randomDirection = validDirections[Random.Range(0, validDirections.Count)];
+                Debug.Log($"Random direction chosen: {randomDirection}");
+                return new Vector3(randomDirection.x, randomDirection.y, 0);
+            }
+            else
+            {
+                Debug.LogWarning($"No valid directions available from {_currentCell}");
+                return Vector3.zero; // Không có hướng hợp lệ nào
+            }
+        }
+
+        
+
+        // Thuật toán BFS
         Queue<Vector3Int> queue = new Queue<Vector3Int>();
         Dictionary<Vector3Int, Vector3Int> parentMap = new Dictionary<Vector3Int, Vector3Int>();
         HashSet<Vector3Int> visited = new HashSet<Vector3Int>();
 
+        // Khởi tạo BFS
         queue.Enqueue(_currentCell);
         visited.Add(_currentCell);
 
@@ -99,46 +122,67 @@ public class EnemyGridMoveMent : MonoBehaviour
         {
             Vector3Int current = queue.Dequeue();
 
-            // Nếu đã đến ô đích, quay lui để tìm bước đầu tiên
+            // Debug: thông báo ô đang xử lý
+            Debug.Log($"Processing cell: {current}");
+
+            // Nếu tìm thấy ô mục tiêu
             if (current == targetCell)
             {
+              
+
                 Vector3Int pathStep = current;
                 Vector3Int lastStep = current;
 
-                // Quay lui để tìm bước đầu tiên từ ô hiện tại
+                // Truy ngược để tìm bước đầu tiên
                 while (parentMap.ContainsKey(pathStep) && parentMap[pathStep] != _currentCell)
                 {
                     lastStep = pathStep;
                     pathStep = parentMap[pathStep];
                 }
 
-                // Tính toán hướng của bước đầu tiên
-                Vector2 direction = new Vector2(
-                    lastStep.x - _currentCell.x,
-                    lastStep.y - _currentCell.y
-                );
+                // Tính hướng đi
+                Vector3Int diff = lastStep - _currentCell;
+         
 
-                return new Vector3(direction.x, direction.y, 0);
+                // Chỉ trả về hướng đi chính
+                if (Mathf.Abs(diff.x) > Mathf.Abs(diff.y))
+                {
+                    return new Vector3(Mathf.Sign(diff.x), 0, 0);
+                }
+                else
+                {
+                    return new Vector3(0, Mathf.Sign(diff.y), 0);
+                }
             }
 
-            // Kiểm tra các ô kề
+            // Kiểm tra các ô liền kề
             Vector2[] directions = { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
             foreach (var dir in directions)
             {
                 Vector3Int adjacentCell = current + new Vector3Int((int)dir.x, (int)dir.y, 0);
 
-                // Kiểm tra xem ô kề có hợp lệ và chưa được thăm
+                /*// Debug: kiểm tra ô liền kề
+                if (!IsValidCell(adjacentCell))
+                {
+                    Debug.Log($"Invalid cell skipped: {adjacentCell}");
+                }
+                else if (visited.Contains(adjacentCell))
+                {
+                    Debug.Log($"Already visited cell skipped: {adjacentCell}");
+                }*/
+
+                // Thêm ô hợp lệ vào hàng đợi
                 if (IsValidCell(adjacentCell) && !visited.Contains(adjacentCell))
                 {
                     queue.Enqueue(adjacentCell);
                     visited.Add(adjacentCell);
                     parentMap[adjacentCell] = current;
+                   
                 }
             }
-           
         }
 
-        // Không tìm thấy đường đi
+  
         return Vector3.zero;
     }
     private void OnCollisionEnter2D(Collision2D collision)
@@ -186,7 +230,7 @@ public class EnemyGridMoveMent : MonoBehaviour
         if (Stunning)
         {
             enemy.ChangeAnim("stun");
-            Debug.Log("stun ");
+          
             StartCoroutine(ResetStun());
             return;
         }
@@ -244,8 +288,8 @@ public class EnemyGridMoveMent : MonoBehaviour
                 enemy.sprite.flipX = false;
             }
 
-            Vector3Int nextCell = currentCell + new Vector3Int((int)currentDirection.x/2, (int)currentDirection.y/2, 0);
-            Debug.Log(currentDirection.x + " " + currentDirection.y);
+            Vector3Int nextCell = currentCell + new Vector3Int((int)currentDirection.x, (int)currentDirection.y, 0);
+           
             enemy.ChangeAnim("walk");
 
             // Kiểm tra nếu ô tiếp theo không hợp lệ
@@ -264,7 +308,7 @@ public class EnemyGridMoveMent : MonoBehaviour
                 // Nếu không còn hướng đi nào
                 if (validDirections.Count == 0)
                 {
-                    Debug.Log("Không còn hướng đi hợp lệ. Dừng di chuyển.");
+                    
                     break;
                 }
 
@@ -292,12 +336,12 @@ public class EnemyGridMoveMent : MonoBehaviour
                 }
 
                 // Cập nhật lại ô tiếp theo
-                nextCell = currentCell + new Vector3Int((int)currentDirection.x / 2, (int)currentDirection.y/2, 0);
+                nextCell = currentCell + new Vector3Int((int)currentDirection.x, (int)currentDirection.y, 0);
 
                 // Kiểm tra lại tính hợp lệ của ô
                 if (!IsValidCell(nextCell))
                 {
-                    Debug.Log("Không thể tìm được ô di chuyển hợp lệ.");
+                   
                     break;
                 }
 

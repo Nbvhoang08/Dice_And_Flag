@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1246258159353341136}
   - component: {fileID: 1586074054614889841}
   - component: {fileID: 744994478664353558}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -102,7 +102,7 @@ MonoBehaviour:
   player: {fileID: 2445211422692526808}
   move: {fileID: 5452905186899793462}
   dir: {x: 1, y: 0}
-  StartPos: {x: 1.7, y: 1}
+  StartPos: {x: 1.7, y: 1, z: -4}
 --- !u!58 &1586074054614889841
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -547,7 +547,7 @@ GameObject:
   - component: {fileID: 6667905714132953742}
   - component: {fileID: 482165290458098120}
   - component: {fileID: 9205495034000706052}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: U
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -636,7 +636,7 @@ MonoBehaviour:
   player: {fileID: 2445211422692526808}
   move: {fileID: 5452905186899793462}
   dir: {x: 0, y: 1}
-  StartPos: {x: 0, y: 3.33}
+  StartPos: {x: 0, y: 3.33, z: -4}
 --- !u!58 &482165290458098120
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -712,7 +712,7 @@ GameObject:
   - component: {fileID: 9045559543800199199}
   - component: {fileID: 7640558604442163825}
   - component: {fileID: 23587441848959418}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -801,7 +801,7 @@ MonoBehaviour:
   player: {fileID: 2445211422692526808}
   move: {fileID: 5452905186899793462}
   dir: {x: -1, y: 0}
-  StartPos: {x: -1.7, y: 1}
+  StartPos: {x: -1.7, y: 1, z: -4}
 --- !u!58 &7640558604442163825
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -912,7 +912,7 @@ GameObject:
   - component: {fileID: 1952321742430268411}
   - component: {fileID: 1389174699443827440}
   - component: {fileID: 3264116526028436567}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: D
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1001,7 +1001,7 @@ MonoBehaviour:
   player: {fileID: 2445211422692526808}
   move: {fileID: 5452905186899793462}
   dir: {x: 0, y: -1}
-  StartPos: {x: 0, y: -0.7}
+  StartPos: {x: 0, y: -0.7, z: -4}
 --- !u!58 &1389174699443827440
 CircleCollider2D:
   m_ObjectHideFlags: 0

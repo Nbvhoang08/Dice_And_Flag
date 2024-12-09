@@ -8,7 +8,7 @@ public class FakeButton : MonoBehaviour
     public Player player;
     public GirdMoveMent move;
     public Vector2 dir;
-    public Vector2 StartPos;
+    public Vector3 StartPos;
 
     
     private void OnEnable()
@@ -17,7 +17,7 @@ public class FakeButton : MonoBehaviour
     }
     private void Update()
     {
-        
+        transform.localPosition = StartPos;
     }
 
     private void OnMouseDown()

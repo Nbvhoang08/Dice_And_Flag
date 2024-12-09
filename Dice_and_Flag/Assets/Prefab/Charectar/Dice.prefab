@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: -664321613169634475}
   - component: {fileID: 9066066065115399948}
   - component: {fileID: 628460645257095289}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Dice
   m_TagString: Dice
   m_Icon: {fileID: 0}
@@ -169,7 +169,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.06628221}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -180,7 +180,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.8888889, y: 1}
+  m_Size: {x: 0.8888889, y: 0.8674356}
   m_EdgeRadius: 0
 --- !u!114 &628460645257095289
 MonoBehaviour:
@@ -228,7 +228,7 @@ GameObject:
   m_Component:
   - component: {fileID: 956962661638618942}
   - component: {fileID: 3548490054503945482}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Score
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -11,8 +11,8 @@ public class Flag : MonoBehaviour
     public FlagType type;
     private GameObject player;
     private bool followPlayer = false;
-    private GameObject enemy;
-    private bool followEnemy = false;
+    public GameObject enemy;
+    public bool followEnemy = false;
     public bool isDone;
     public GameManager gameManager;
     void Start()
@@ -39,9 +39,9 @@ public class Flag : MonoBehaviour
         if (followPlayer && player != null)
         {
             // Di chuyển cờ để theo dõi người chơi
-            Vector3 FollowTranfom = new Vector3(player.transform.position.x+0.25f, player.transform.position.y+0.5f, 0);
+            Vector3 FollowTranfom = new Vector3(player.transform.position.x, player.transform.position.y, 0);
             transform.position = FollowTranfom;
-            if (player.GetComponent<Player>().Death)
+            if (player.GetComponent<Player>().Death )
             {
                 followPlayer = false;
                 player = null;
@@ -52,9 +52,12 @@ public class Flag : MonoBehaviour
     {
         if (followEnemy && enemy != null)
         {
+            if (enemy.GetComponent<Enemy>().bringFlag)
+            {
+                Vector3 FollowTranfom = new Vector3(enemy.transform.position.x, enemy.transform.position.y, 0);
+                transform.position = enemy.transform.position;
+            }
             // Di chuyển cờ để theo dõi người chơi
-            Vector3 FollowTranfom = new Vector3(enemy.transform.position.x, enemy.transform.position.y, 0);
-            transform.position = enemy.transform.position;
             if (enemy.GetComponent<Enemy>().Death)
             {
                 followEnemy = false;
@@ -87,7 +90,8 @@ public class Flag : MonoBehaviour
         {
             followEnemy = true;
             enemy = collision.gameObject;
-          
+            enemy.GetComponent<Enemy>().bringFlag = true;
+
         }
         else if (type == FlagType.Player && collision.CompareTag("EnemyGoal") && enemy != null && !isDone)
         {
@@ -95,7 +99,7 @@ public class Flag : MonoBehaviour
             {
                 followEnemy = false;
                 enemy = null;
-                enemy.GetComponent<Enemy>().bringFlag = true;
+                
                 transform.position = collision.transform.position;
                 isDone = true;
                 gameManager.GameOver = true;
